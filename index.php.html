@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAO Score — Measure Your Content's Attention Power</title>
+<meta name="description" content="Find out how the human brain responds to your content — before you post. BAO Score measures attention, retention, and cognitive impact across 6 dimensions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:        #0D0D0D;
+  --ink-muted:  #555550;
+  --ink-faint:  #999990;
+  --paper:      #F7F6F2;
+  --paper-warm: #EEEAE0;
+  --white:      #FFFFFF;
+  --accent:     #1A1A2E;
+  --pulse:      #C8441A;
+  --pulse-light:#F9EDE8;
+  --border:     rgba(13,13,13,0.10);
+  --green:      #2D6A4F;
+  --green-light:#E8F5EE;
+  --amber:      #B45309;
+  --amber-light:#FEF3C7;
+  --serif:      'DM Serif Display', Georgia, serif;
+  --sans:       'Inter', system-ui, sans-serif;
+  --mono:       'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(247,246,242,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--ink); text-decoration: none; letter-spacing: 0.05em; }
+.nav-logo span { color: var(--pulse); }
+.nav-cta {
+  background: var(--pulse); color: white; text-decoration: none;
+  padding: 0.45rem 1.1rem; border-radius: 3px; font-size: 13px; font-weight: 500;
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8rem 2rem 5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle grid background */
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--pulse); margin-bottom: 2rem;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content: ''; display: block; width: 24px; height: 1px; background: var(--pulse);
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+}
+.hero h1 em { font-style: italic; color: var(--pulse); }
+
+.hero-sub {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--ink-muted);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+/* ── LIVE SCORE METER ── */
+.score-meter-wrap {
+  position: relative;
+  width: 220px; height: 220px;
+  margin: 0 auto 3rem;
+}
+.score-meter-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.score-track { fill: none; stroke: var(--paper-warm); stroke-width: 12; }
+.score-fill {
+  fill: none; stroke: var(--pulse); stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 502;
+  stroke-dashoffset: 502;
+  transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.score-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.score-number {
+  font-family: var(--mono); font-size: 52px; font-weight: 500;
+  color: var(--ink); line-height: 1;
+  counter-reset: num var(--n);
+}
+.score-denom { font-family: var(--mono); font-size: 16px; color: var(--ink-faint); margin-top: 2px; }
+.score-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pulse); margin-top: 4px; font-weight: 600; }
+
+/* ── CTA BUTTON ── */
+.cta-primary {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: var(--accent); color: white; text-decoration: none;
+  padding: 1rem 2rem; border-radius: 3px;
+  font-size: 15px; font-weight: 500; letter-spacing: 0.02em;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(26,26,46,0.18);
+}
+.cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(26,26,46,0.24); }
+.cta-arrow { transition: transform 0.2s; }
+.cta-primary:hover .cta-arrow { transform: translateX(4px); }
+
+.cta-note { font-size: 12px; color: var(--ink-faint); margin-top: 1rem; letter-spacing: 0.02em; }
+
+/* ── DIVIDER ── */
+.divider { border: none; border-top: 1px solid var(--border); }
+
+/* ── SECTION ── */
+section { padding: 5rem 2rem; max-width: 860px; margin: 0 auto; }
+
+.section-label {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 1.25rem; display: block;
+}
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  line-height: 1.15; letter-spacing: -0.02em;
+  color: var(--ink); margin-bottom: 1rem;
+}
+p { color: var(--ink-muted); margin-bottom: 1rem; line-height: 1.75; }
+p strong { color: var(--ink); font-weight: 600; }
+
+/* ── SCORE CARDS GRID ── */
+.scores-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 2.5rem 0;
+}
+.score-card {
+  background: var(--white);
+  padding: 1.5rem;
+  position: relative;
+  transition: background 0.2s;
+}
+.score-card:hover { background: var(--paper); }
+.score-card.locked { filter: none; }
+.score-card-num {
+  font-family: var(--mono); font-size: 32px; font-weight: 500;
+  line-height: 1; margin-bottom: 0.5rem;
+}
+.score-card-num.strong { color: var(--pulse); }
+.score-card-num.good { color: var(--amber); }
+.score-card-num.locked-num {
+  color: transparent;
+  background: var(--paper-warm);
+  border-radius: 4px;
+  display: inline-block;
+  width: 64px; height: 36px;
+  position: relative;
+}
+.score-card-num.locked-num::after {
+  content: '??';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-faint); font-size: 20px;
+}
+.score-card-bar-wrap { height: 4px; background: var(--paper-warm); border-radius: 2px; margin: 0.75rem 0; overflow: hidden; }
+.score-card-bar { height: 100%; border-radius: 2px; transition: width 1.5s ease; width: 0; }
+.score-card-label { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.score-card-desc { font-size: 12px; color: var(--ink-faint); line-height: 1.4; }
+.score-card-lock {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 28px; height: 28px;
+  background: var(--paper-warm);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+
+/* ── SAMPLE REPORT PREVIEW ── */
+.report-preview {
+  background: var(--accent);
+  border-radius: 8px;
+  padding: 2.5rem;
+  margin: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.report-preview::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--pulse);
+}
+.report-preview-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.5rem;
+}
+.report-row {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.report-row:last-child { border-bottom: none; }
+.report-row-label { font-size: 13px; color: rgba(255,255,255,0.6); flex: 1; }
+.report-row-bar-wrap { flex: 2; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.report-row-bar { height: 100%; border-radius: 3px; }
+.report-row-score { font-family: var(--mono); font-size: 14px; font-weight: 500; color: white; min-width: 40px; text-align: right; }
+
+/* ── HOW IT WORKS ── */
+.steps { display: flex; flex-direction: column; gap: 0; margin: 2rem 0; }
+.step {
+  display: flex; gap: 1.5rem; padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.step:first-child { border-top: 1px solid var(--border); }
+.step-num {
+  font-family: var(--mono); font-size: 11px; color: var(--pulse);
+  min-width: 32px; padding-top: 3px; letter-spacing: 0.1em;
+}
+.step-content h3 { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 0.25rem; }
+.step-content p { font-size: 14px; color: var(--ink-muted); margin: 0; line-height: 1.6; }
+
+/* ── METRICS EXPLAINED ── */
+.metrics-list { list-style: none; margin: 2rem 0; display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.metric-item {
+  display: flex; align-items: flex-start; gap: 1rem; padding: 1.1rem 1.25rem;
+  background: var(--white); transition: background 0.15s;
+}
+.metric-item:hover { background: var(--paper); }
+.metric-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pulse); margin-top: 6px; flex-shrink: 0; }
+.metric-dot.amber { background: var(--amber); }
+.metric-name { font-size: 14px; font-weight: 600; color: var(--ink); min-width: 180px; }
+.metric-desc { font-size: 13px; color: var(--ink-muted); line-height: 1.5; }
+
+/* ── FINAL CTA ── */
+.final-cta {
+  text-align: center; padding: 5rem 2rem;
+  max-width: 600px; margin: 0 auto;
+}
+.final-cta h2 { margin-bottom: 1rem; }
+.final-cta p { margin-bottom: 2.5rem; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 2.5rem 2rem;
+  max-width: 860px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 1rem;
+  border-top: 1px solid var(--border);
+}
+.footer-brand { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+.footer-brand strong { color: var(--pulse); }
+.footer-links { display: flex; gap: 1.5rem; list-style: none; }
+.footer-links a { font-size: 12px; color: var(--ink-faint); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--ink); }
+
+/* ── ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+@media (max-width: 640px) {
+  nav { padding: 0 1.25rem; }
+  section { padding: 3.5rem 1.25rem; }
+  .scores-grid { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: 2.8rem; }
+  .score-meter-wrap { width: 180px; height: 180px; }
+  .score-number { font-size: 42px; }
+  footer { flex-direction: column; align-items: flex-start; }
+  .metric-name { min-width: 140px; }
+}
+@media (max-width: 420px) {
+  .scores-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .score-fill { transition: none; }
+  .score-card-bar { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">BAO<span>.</span>score</a>
+  <a class="nav-cta" href="https://atenxa.com">Get Your Score →</a>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <p class="hero-eyebrow">Brain Attention Optimization</p>
+  <h1>Does your content<br>pass the <em>brain test?</em></h1>
+  <p class="hero-sub">BAO Score measures how the human brain responds to your content — across 6 cognitive dimensions — before you post.</p>
+
+  <!-- Live score meter -->
+  <div class="score-meter-wrap" id="meterWrap">
+    <svg viewBox="0 0 180 180">
+      <circle class="score-track" cx="90" cy="90" r="80"/>
+      <circle class="score-fill" id="scoreFill" cx="90" cy="90" r="80"/>
+    </svg>
+    <div class="score-center">
+      <div class="score-number" id="scoreNum">0</div>
+      <div class="score-denom">/100</div>
+      <div class="score-label">BAO Score</div>
+    </div>
+  </div>
+
+  <a href="https://atenxa.com" class="cta-primary">
+    Analyze Your Content
+    <span class="cta-arrow">→</span>
+  </a>
+  <p class="cta-note">Powered by Atenxa · Attention Intelligence Platform</p>
+</div>
+
+<hr class="divider">
+
+<!-- ── WHAT IS BAO SCORE ── -->
+<section class="reveal">
+  <span class="section-label">What you're measuring</span>
+  <h2>Not views. Not clicks.<br>Cognitive impact.</h2>
+  <p>Traditional analytics measure what the platform recorded. <strong>BAO Score measures what the brain registered.</strong> These are not the same thing.</p>
+  <p>The most-viewed ad isn't always remembered. The highest-ranked page isn't always trusted. Because getting on a screen is a distribution problem — staying in a mind is a cognitive one.</p>
+
+  <!-- Score cards -->
+  <div class="scores-grid" id="scoreGrid">
+    <div class="score-card">
+      <div class="score-card-num strong" id="c1">0</div>
+      <div class="score-card-bar-wrap"><div class="score-card-bar" style="background:var(--pulse)" data-width="88"></div></div>
+      <div class="score-card-label">Hook Strength</div>
+      <div class="score-card-desc">First 300ms scroll-stop power</div>
+    </div>
+    <div class="score-card">
+      <div class="score-card-num strong" id="c2">0</div>
+      <div class="score-card-bar-wrap"><div class="score-card-bar" style="background:var(--pulse)" data-width="82"></div></div>
+      <div class="score-card-label">Curiosity Gap</div>
+      <div class="score-card-desc">Brain's reward anticipation signal</div>
+    </div>
+    <div class="score-card">
+      <div class="score-card-num good" id="c3">0</div>
+      <div class="score-card-bar-wrap"><div class="score-card-bar" style="background:var(--amber)" data-width="80"></div></div>
+      <div class="score-card-label">Identity Resonance</div>
+      <div class="score-card-desc">Niche recognition and relevance</div>
+    </div>
+    <div class="score-card">
+      <div class="score-card-num good" id="c4">0</div>
+      <div class="score-card-bar-wrap"><div class="score-card-bar" style="background:var(--amber)" data-width="71"></div></div>
+      <div class="score-card-label">Retention Prediction</div>
+      <div class="score-card-desc">Estimated completion probability</div>
+    </div>
+    <div class="score-card">
+      <div class="score-card-num good" id="c5">0</div>
+      <div class="score-card-bar-wrap"><div class="score-card-bar" style="background:var(--amber)" data-width="68"></div></div>
+      <div class="score-card-label">Cognitive Ease</div>
+      <div class="score-card-desc">Mental processing cost per frame</div>
+    </div>
+    <div class="score-card">
+      <div class="score-card-num good" id="c6">0</div>
+      <div class="score-card-bar-wrap"><div class="score-card-bar" style="background:var(--amber)" data-width="63"></div></div>
+      <div class="score-card-label">Emotional Density</div>
+      <div class="score-card-desc">Affective engagement per second</div>
+    </div>
+  </div>
+
+  <p style="font-size:13px; color:var(--ink-faint); text-align:center;">
+    Sample scores from a real Atenxa analysis. <a href="https://atenxa.com" style="color:var(--pulse); text-decoration:none;">Get yours →</a>
+  </p>
+</section>
+
+<hr class="divider">
+
+<!-- ── SAMPLE REPORT ── -->
+<section class="reveal">
+  <span class="section-label">What you receive</span>
+  <h2>A full attention<br>architecture report.</h2>
+  <p>Every BAO Score comes with a complete breakdown — frame by frame, second by second. Not just what happened. <strong>Why it happened, and how to fix it.</strong></p>
+
+  <div class="report-preview">
+    <div class="report-preview-label">BAO Analysis Report · Sample Output</div>
+    <div class="report-row">
+      <div class="report-row-label">Hook Strength</div>
+      <div class="report-row-bar-wrap"><div class="report-row-bar" style="width:88%; background:var(--pulse);"></div></div>
+      <div class="report-row-score">88</div>
+    </div>
+    <div class="report-row">
+      <div class="report-row-label">Curiosity Gap</div>
+      <div class="report-row-bar-wrap"><div class="report-row-bar" style="width:82%; background:var(--pulse);"></div></div>
+      <div class="report-row-score">82</div>
+    </div>
+    <div class="report-row">
+      <div class="report-row-label">Identity Resonance</div>
+      <div class="report-row-bar-wrap"><div class="report-row-bar" style="width:80%; background:#2563EB;"></div></div>
+      <div class="report-row-score">80</div>
+    </div>
+    <div class="report-row">
+      <div class="report-row-label">Retention Prediction</div>
+      <div class="report-row-bar-wrap"><div class="report-row-bar" style="width:71%; background:var(--amber);"></div></div>
+      <div class="report-row-score">71</div>
+    </div>
+    <div class="report-row">
+      <div class="report-row-label">Cognitive Ease</div>
+      <div class="report-row-bar-wrap"><div class="report-row-bar" style="width:68%; background:var(--amber);"></div></div>
+      <div class="report-row-score">68</div>
+    </div>
+    <div class="report-row">
+      <div class="report-row-label">Emotional Density</div>
+      <div class="report-row-bar-wrap"><div class="report-row-bar" style="width:63%; background:var(--amber);"></div></div>
+      <div class="report-row-score">63</div>
+    </div>
+    <div class="report-row" style="margin-top:0.5rem; border-top: 1px solid rgba(255,255,255,0.15); padding-top:1rem;">
+      <div class="report-row-label" style="color:white; font-weight:600;">Overall BAO Score</div>
+      <div class="report-row-bar-wrap"><div class="report-row-bar" style="width:75%; background:var(--pulse);"></div></div>
+      <div class="report-row-score" style="color:var(--pulse); font-size:18px;">75</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── HOW IT WORKS ── -->
+<section class="reveal">
+  <span class="section-label">The process</span>
+  <h2>Three steps to knowing<br>before you post.</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>Submit your content</h3>
+        <p>Upload your video or share the URL to Atenxa. Works with TikTok, Instagram Reels, YouTube Shorts, and raw video files.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>Atenxa runs the BAO analysis</h3>
+        <p>Our Attention Intelligence Engine analyzes your content frame by frame — mapping cognitive load, emotional pacing, hook architecture, and retention curve.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>Receive your BAO Score + full report</h3>
+        <p>A complete breakdown across 6 dimensions with prioritized improvement actions — delivered within 24 hours. Not after you post. Before.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ── METRICS ── -->
+<section class="reveal">
+  <span class="section-label">The 6 dimensions</span>
+  <h2>Attention isn't one thing.<br>It's six measurable signals.</h2>
+  <p>The way SEO has rankings. The way GEO has citations. <strong>BAO has attention scores.</strong> Each dimension maps a specific cognitive mechanism that determines whether your content survives the brain's filtering process.</p>
+
+  <ul class="metrics-list">
+    <li class="metric-item">
+      <div class="metric-dot"></div>
+      <div class="metric-name">Hook Strength</div>
+      <div class="metric-desc">Measures scroll-stop power in the first 300ms. Does your opening frame trigger the brain's threat/reward scanner?</div>
+    </li>
+    <li class="metric-item">
+      <div class="metric-dot"></div>
+      <div class="metric-name">Curiosity Gap</div>
+      <div class="metric-desc">Measures the brain's reward anticipation signal. Does your content create a question the brain needs to answer?</div>
+    </li>
+    <li class="metric-item">
+      <div class="metric-dot amber"></div>
+      <div class="metric-name">Identity Resonance</div>
+      <div class="metric-desc">Measures niche recognition. Does the brain immediately identify this content as relevant to its current attentional template?</div>
+    </li>
+    <li class="metric-item">
+      <div class="metric-dot amber"></div>
+      <div class="metric-name">Retention Prediction</div>
+      <div class="metric-desc">Estimates completion probability based on dopamine reward pacing. Where does the anticipation engine shut down?</div>
+    </li>
+    <li class="metric-item">
+      <div class="metric-dot amber"></div>
+      <div class="metric-name">Cognitive Ease</div>
+      <div class="metric-desc">Measures mental processing cost per frame. High cognitive load without reward = swipe. This catches that risk.</div>
+    </li>
+    <li class="metric-item">
+      <div class="metric-dot amber"></div>
+      <div class="metric-name">Emotional Density</div>
+      <div class="metric-desc">Measures affective engagement per second. Emotion is the brain's primary retention mechanism — this maps its presence.</div>
+    </li>
+  </ul>
+</section>
+
+<hr class="divider">
+
+<!-- ── FINAL CTA ── -->
+<div class="final-cta reveal">
+  <span class="section-label" style="display:block; text-align:center;">Ready?</span>
+  <h2>Find out what your<br>brain score is.</h2>
+  <p>Every second you wait, your content is being judged by a brain that doesn't care about your production budget. Get the score. Fix what matters. Post with confidence.</p>
+  <a href="https://atenxa.com" class="cta-primary" style="justify-content:center;">
+    Get Your BAO Score
+    <span class="cta-arrow">→</span>
+  </a>
+  <p class="cta-note" style="margin-top:1rem;">Analyzed by Atenxa · www.atenxa.com</p>
+</div>
+
+<hr class="divider">
+
+<footer>
+  <div class="footer-brand">
+    <strong>BAO Score</strong> · Brain Attention Optimization<br>
+    <span>Powered by <a href="https://atenxa.com" style="color:var(--pulse); text-decoration:none;">Atenxa</a> · Attention Intelligence Platform</span>
+  </div>
+  <ul class="footer-links">
+    <li><a href="https://baoframework.com">BAO Framework</a></li>
+    <li><a href="https://atenxa.com">Atenxa.com</a></li>
+    <li><a href="https://linkedin.com/in/faisalnur">LinkedIn</a></li>
+  </ul>
+</footer>
+
+<script>
+// ── SCORE METER ANIMATION ──
+function animateValue(el, start, end, duration) {
+  let startTime = null;
+  function step(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progress = Math.min((timestamp - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + (end - start) * ease);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function animateMeter(score) {
+  const circumference = 2 * Math.PI * 80;
+  const fill = document.getElementById('scoreFill');
+  const numEl = document.getElementById('scoreNum');
+  const offset = circumference - (score / 100) * circumference;
+  fill.style.strokeDashoffset = offset;
+  animateValue(numEl, 0, score, 2000);
+}
+
+// Card score animation
+const cardTargets = [88, 82, 80, 71, 68, 63];
+
+function animateCards() {
+  cardTargets.forEach((target, i) => {
+    const el = document.getElementById(`c${i+1}`);
+    if (el) animateValue(el, 0, target, 1500 + i * 100);
+    const bars = document.querySelectorAll('.score-card-bar');
+    if (bars[i]) {
+      setTimeout(() => {
+        bars[i].style.width = bars[i].dataset.width + '%';
+      }, 200 + i * 80);
+    }
+  });
+}
+
+// ── INTERSECTION OBSERVER ──
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(r => revealObserver.observe(r));
+
+// Trigger meter on load
+window.addEventListener('load', () => {
+  setTimeout(() => animateMeter(75), 400);
+});
+
+// Trigger cards when grid is visible
+const gridObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateCards();
+      gridObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+const grid = document.getElementById('scoreGrid');
+if (grid) gridObserver.observe(grid);
+</script>
+
+</body>
+</html>
