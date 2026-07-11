@@ -1,0 +1,21 @@
+# BAO Score
+
+> BAO Score is a content-analysis tool that measures how the human brain responds to a piece of content — across 6 cognitive dimensions — before it is published. It operationalizes the BAO (Brain Attention Optimization) framework and is powered by the Atenxa Attention Intelligence Platform.
+
+Traditional analytics measure what the platform recorded (views, clicks, impressions). BAO Score measures what the brain registered: cognitive impact, not surface engagement. A user submits a video or URL (TikTok, Instagram Reels, YouTube Shorts, or a raw video file); Atenxa analyzes it frame by frame, second by second; the user receives a BAO Score (0–100) plus a full attention-architecture report with prioritized fixes, typically within 24 hours.
+
+## The 6 dimensions scored
+- Hook Strength: scroll-stop power in the first 300ms — whether the opening frame triggers the brain's threat/reward scanner.
+- Curiosity Gap: the brain's reward-anticipation signal — whether the content creates a question the brain needs answered.
+- Identity Resonance: niche recognition — whether the brain immediately identifies the content as relevant to its current attentional template.
+- Retention Prediction: estimated completion probability based on dopamine reward pacing — where the anticipation engine is likely to drop off.
+- Cognitive Ease: mental processing cost per frame — high cognitive load without a reward invites a swipe-away.
+- Emotional Density: affective engagement per second — emotion is the brain's primary retention mechanism.
+
+## Core pages
+- [Home / Get Your BAO Score](https://baoscore.com): Overview, sample score, and entry point to submit content for analysis.
+- [BAO Framework](https://baoframework.com): The underlying discipline and definitions behind BAO Score.
+- [Atenxa](https://atenxa.com): The Attention Intelligence Platform that runs the frame-by-frame analysis behind every BAO Score.
+
+## Optional
+- LinkedIn: (isi link LinkedIn resmi Atenxa / BAO Score di sini)
