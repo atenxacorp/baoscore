@@ -18,4 +18,4 @@ Traditional analytics measure what the platform recorded (views, clicks, impress
 - [Atenxa](https://atenxa.com): The Attention Intelligence Platform that runs the frame-by-frame analysis behind every BAO Score.
 
 ## Optional
-- LinkedIn: (isi link LinkedIn resmi Atenxa / BAO Score di sini)
+- LinkedIn: 
